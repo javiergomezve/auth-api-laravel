@@ -8,21 +8,15 @@ use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Storage;
-use Avatar;
+use Illuminate\Support\Facades\Storage;
+use Laravolt\Avatar\Avatar;
 
 class AuthController extends Controller
 {
     /**
-     * Create User
+     * @param Request $request
      *
-     * @param [string] name
-     * @param [string] email
-     * @param [string] password
-     * @param [string] password_confirmation
-     * @param [string] message
-     *
-     * @return [string] message
+     * @return \Illuminate\Http\JsonResponse
      */
     public function signup(Request $request)
     {
@@ -43,13 +37,18 @@ class AuthController extends Controller
         $avatar = Avatar::create($user->name)->getImageObject()->encode('png');
         Storage::put('avatars/'.$user->id.'/avatar.png', (string) $avatar);
 
-        $user->notify(new SignupActivate($user));
+        $user->notify(new SignupActivate);
 
         return response()->json([
             'message' => 'Successfully created user!'
         ], 201);
     }
 
+    /**
+     * @param $token
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function signupActivate($token)
     {
         $user = User::where('activation_token', $token)->first();
@@ -68,15 +67,9 @@ class AuthController extends Controller
     }
 
     /**
-     * Login User and create token
+     * @param Request $request
      *
-     * @param  [string] email
-     * @param  [string] password
-     * @param  [boolean] remember_me
-     *
-     * @return [string] access_token
-     * @return [string] token_type
-     * @return [string] expires_at
+     * @return \Illuminate\Http\JsonResponse
      */
     public function login(Request $request)
     {
@@ -114,9 +107,9 @@ class AuthController extends Controller
     }
 
     /**
-     * Logout user (Revoke the token)
+     * @param Request $request
      *
-     * @return [string] message
+     * @return \Illuminate\Http\JsonResponse
      */
     public function logout(Request $request)
     {
@@ -128,9 +121,9 @@ class AuthController extends Controller
     }
 
     /**
-     * Get the authenticated User
+     * @param Request $request
      *
-     * @return [json] user object
+     * @return \Illuminate\Http\JsonResponse
      */
     public function user(Request $request)
     {
